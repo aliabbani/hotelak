@@ -1,6 +1,5 @@
 import express from "express";
 import Hotel from "../models/Hotel.js"; // import the Hotel model
-
 const router = express.Router();
 
 // res is the response object
@@ -58,7 +57,7 @@ router.get("/:id", async (req, res) => {
 });
 
 //GET ALL
-router.get("/", async (req, res) => {
+router.get("/", async (req, res, next) => {
   try {
     const hotels = await Hotel.find();
     res.status(200).json(hotels);
