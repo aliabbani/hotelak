@@ -1,11 +1,12 @@
-import "./list.css";
-import Navbar from "../../components/navbar/Navbar";
-import Header from "../../components/header/Header";
-import { useLocation } from "react-router-dom";
 import { useState } from "react";
+import { useLocation, Link } from "react-router-dom";
 import { format } from "date-fns";
 import { DateRange } from "react-date-range";
-import SearchItem from "../../components/searchItem/SearchItem";
+import useFetch from "../../hooks/useFetch.js";
+import Navbar from "../../components/navbar/Navbar";
+import Header from "../../components/header/Header";
+import "./list.css";
+import "./searchItem.css";
 
 const List = () => {
   const location = useLocation();
@@ -13,6 +14,17 @@ const List = () => {
   const [date, setDate] = useState(location.state.date);
   const [openDate, setOpenDate] = useState(false);
   const [options, setOptions] = useState(location.state.options);
+  const [min, setMin] = useState(undefined);
+  const [max, setMax] = useState(undefined);
+
+  console.log("what is that destination", location.state.destination);
+  console.log("what is that date", location.state.date);
+  console.log("what is that options", location.state.options);
+
+  const { data, loading, error, reFetch } = useFetch(
+    `./hotels?city=${destination}&min=${min || 0}&max=${max || 9999}`
+  );
+  console.log("dataaa", data);
 
   return (
     <div>
@@ -28,10 +40,13 @@ const List = () => {
             </div>
             <div className="lsItem">
               <label>Check-in Date</label>
-              <span onClick={() => setOpenDate(!openDate)}>{`${format(
-                date[0].startDate,
-                "MM/dd/yyyy"
-              )} to ${format(date[0].endDate, "MM/dd/yyyy")}`}</span>
+              <span onClick={() => setOpenDate(!openDate)}>
+                {`
+                  ${format(date[0].startDate, "MM/dd/yyyy")} 
+                    to 
+                  ${format(date[0].endDate, "MM/dd/yyyy")}
+                `}
+              </span>
               {openDate && (
                 <DateRange
                   onChange={(item) => setDate([item.selection])}
@@ -47,13 +62,21 @@ const List = () => {
                   <span className="lsOptionText">
                     Min price <small>per night</small>
                   </span>
-                  <input type="number" className="lsOptionInput" />
+                  <input
+                    type="number"
+                    onChange={(e) => setMin(e.target.value)}
+                    className="lsOptionInput"
+                  />
                 </div>
                 <div className="lsOptionItem">
                   <span className="lsOptionText">
                     Max price <small>per night</small>
                   </span>
-                  <input type="number" className="lsOptionInput" />
+                  <input
+                    type="number"
+                    onChange={(e) => setMax(e.target.value)}
+                    className="lsOptionInput"
+                  />
                 </div>
                 <div className="lsOptionItem">
                   <span className="lsOptionText">Adult</span>
@@ -84,18 +107,18 @@ const List = () => {
                 </div>
               </div>
             </div>
-            <button>Search</button>
+            <button onClick={reFetch}>Search</button>
           </div>
           <div className="listResult">
-            <SearchItem />
-            <SearchItem />
-            <SearchItem />
-            <SearchItem />
-            <SearchItem />
-            <SearchItem />
-            <SearchItem />
-            <SearchItem />
-            <SearchItem />
+            {loading ? (
+              <p>loading...</p>
+            ) : (
+              <>
+                {data.map((item) => (
+                  <SearchItem key={item.id} item={item} />
+                ))}
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -104,3 +127,40 @@ const List = () => {
 };
 
 export default List;
+
+const SearchItem = ({ item }) => {
+  console.log("itemss", item);
+  return (
+    <div className="searchItem">
+      <img src={item.photos[0]} alt="" className="siImg" />
+      <div className="siDesc">
+        <h1 className="siTitle">{item.name}</h1>
+        <span className="siDistance">{item.distance}m from center</span>
+        <span className="siTaxiOp">Free airport taxi</span>
+        <span className="siSubtitle">
+          Studio Apartment with Air conditioning
+        </span>
+        <span className="siFeatures">{item.desc}</span>
+        <span className="siCancelOp">Free cancellation </span>
+        <span className="siCancelOpSubtitle">
+          You can cancel later, so lock in this great price today!
+        </span>
+      </div>
+      <div className="siDetails">
+        {item.rating && (
+          <div className="siRating">
+            <span>Excellent</span>
+            <button>{item.rating}</button>
+          </div>
+        )}
+        <div className="siDetailTexts">
+          <span className="siPrice">${item.cheapestPrice}</span>
+          <span className="siTaxOp">Includes taxes and fees</span>
+          <Link to={`/hotels/${item.id}`}>
+            <button className="siCheckButton">See availability</button>
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+};
