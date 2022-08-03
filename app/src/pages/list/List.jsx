@@ -1,12 +1,12 @@
-import { useState } from "react";
-import { useLocation, Link } from "react-router-dom";
-import { format } from "date-fns";
-import { DateRange } from "react-date-range";
-import useFetch from "../../hooks/useFetch.js";
+import "./list.css";
 import Navbar from "../../components/navbar/Navbar";
 import Header from "../../components/header/Header";
-import "./list.css";
-import "./searchItem.css";
+import { useLocation } from "react-router-dom";
+import { useState } from "react";
+import { format } from "date-fns";
+import { DateRange } from "react-date-range";
+import SearchItem from "../../components/searchItem/SearchItem";
+import useFetch from "../../hooks/useFetch";
 
 const List = () => {
   const location = useLocation();
@@ -17,14 +17,15 @@ const List = () => {
   const [min, setMin] = useState(undefined);
   const [max, setMax] = useState(undefined);
 
-  console.log("what is that destination", location.state.destination);
-  console.log("what is that date", location.state.date);
-  console.log("what is that options", location.state.options);
-
   const { data, loading, error, reFetch } = useFetch(
-    `./hotels?city=${destination}&min=${min || 0}&max=${max || 9999}`
+    `/hotels?city=${destination}&min=${min || 0}&max=${max || 9999}`
   );
-  console.log("dataaa", data);
+
+  console.log("datasss", data);
+
+  const handleClick = () => {
+    reFetch();
+  };
 
   return (
     <div>
@@ -107,15 +108,15 @@ const List = () => {
                 </div>
               </div>
             </div>
-            <button onClick={reFetch}>Search</button>
+            <button onClick={handleClick}>Search</button>
           </div>
           <div className="listResult">
             {loading ? (
-              <p>loading...</p>
+              "loading"
             ) : (
               <>
                 {data.map((item) => (
-                  <SearchItem key={item.id} item={item} />
+                  <SearchItem item={item} key={item._id} />
                 ))}
               </>
             )}
@@ -127,40 +128,3 @@ const List = () => {
 };
 
 export default List;
-
-const SearchItem = ({ item }) => {
-  console.log("itemss", item);
-  return (
-    <div className="searchItem">
-      <img src={item.photos[0]} alt="" className="siImg" />
-      <div className="siDesc">
-        <h1 className="siTitle">{item.name}</h1>
-        <span className="siDistance">{item.distance}m from center</span>
-        <span className="siTaxiOp">Free airport taxi</span>
-        <span className="siSubtitle">
-          Studio Apartment with Air conditioning
-        </span>
-        <span className="siFeatures">{item.desc}</span>
-        <span className="siCancelOp">Free cancellation </span>
-        <span className="siCancelOpSubtitle">
-          You can cancel later, so lock in this great price today!
-        </span>
-      </div>
-      <div className="siDetails">
-        {item.rating && (
-          <div className="siRating">
-            <span>Excellent</span>
-            <button>{item.rating}</button>
-          </div>
-        )}
-        <div className="siDetailTexts">
-          <span className="siPrice">${item.cheapestPrice}</span>
-          <span className="siTaxOp">Includes taxes and fees</span>
-          <Link to={`/hotels/${item.id}`}>
-            <button className="siCheckButton">See availability</button>
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
-};
