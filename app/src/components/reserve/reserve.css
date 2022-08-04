@@ -1,4 +1,4 @@
-.reserve {
+/* .reserve {
   width: 100vw;
   height: 100vh;
   background-color: rgba(0, 0, 0, 0.418);
@@ -8,7 +8,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-}
+} */
 
 .rContainer {
   background-color: white;
