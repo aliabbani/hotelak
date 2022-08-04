@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import useFetch from "../../hooks/useFetch";
 import Navbar from "../../components/navbar/Navbar";
 import Header from "../../components/header/Header";
@@ -13,16 +13,21 @@ import {
   faLocationDot,
 } from "@fortawesome/free-solid-svg-icons";
 import "./hotel.css";
-import { SearchContext } from "../../context/SearchContext";
+import { AuthContext } from "../../context/AuthContext.js";
+import { SearchContext } from "../../context/SearchContext.js";
+import Reserve from "../../components/reserve/Reserve";
 
 const Hotel = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const id = location.pathname.split("/")[2];
   const [slideNumber, setSlideNumber] = useState(0);
   const [open, setOpen] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
 
   const { data, loading, error } = useFetch(`/hotels/find/${id}`);
   console.log("specific hotel", data);
+  const { user } = useContext(AuthContext);
 
   const { dates, options } = useContext(SearchContext);
   console.log("dates useContext", dates);
@@ -51,6 +56,14 @@ const Hotel = () => {
     }
 
     setSlideNumber(newSlideNumber);
+  };
+
+  const handleClick = (i) => {
+    if (user) {
+      setOpenModal(true);
+    } else {
+      navigate("/login");
+    }
   };
 
   return (
@@ -128,12 +141,13 @@ const Hotel = () => {
                   <b>${days * data.cheapestPrice * options.room}</b> ({days}{" "}
                   nights)
                 </h2>
-                <button>Reserve or Book Now!</button>
+                <button onClick={handleClick}>Reserve or Book Now!</button>
               </div>
             </div>
           </div>
           <MailList />
           <Footer />
+          {openModal && <Reserve setOpen={setOpenModal} hotelId={id} />}
         </div>
       )}
     </div>
