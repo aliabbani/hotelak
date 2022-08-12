@@ -42,7 +42,7 @@ export const login = async (req, res, next) => {
     res
       .cookie("access_tocken", token, { httpOnly: true })
       .status(200)
-      .json({ ...otherDetails });
+      .json({ details: { ...otherDetails }, isAdmin });
   } catch (err) {
     next(err);
   }
