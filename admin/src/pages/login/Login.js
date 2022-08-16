@@ -1,7 +1,7 @@
-import axios from "axios";
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext.js";
+import axios from "axios";
 import "./login.css";
 
 const Login = () => {
@@ -17,6 +17,8 @@ const Login = () => {
   const handleChange = (e) => {
     setCredentials((prev) => ({ ...prev, [e.target.id]: e.target.value }));
   };
+
+  console.log("credentials", credentials);
 
   const handleClick = async (e) => {
     e.preventDefault();
